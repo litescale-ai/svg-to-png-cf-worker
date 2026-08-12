@@ -18,6 +18,10 @@ calls it through a Cloudflare service binding.
 Remote URL fetching is intentionally unsupported. The caller must resolve and
 inline trusted image assets before rasterization.
 
+Liberation Sans Bold is bundled so native SVG text is converted to paths by
+`usvg` in the fontless Workers runtime. Its SIL Open Font License is included
+in `fonts/LICENSE_LIBERATION`.
+
 # Development
 
 Install Rust, `wasm32-unknown-unknown`, `worker-build`, and Wrangler, then run

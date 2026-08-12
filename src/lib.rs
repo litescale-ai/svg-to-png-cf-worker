@@ -4,6 +4,7 @@ use worker::*;
 const MAX_SVG_BYTES: usize = 10_000_000;
 const MAX_DIMENSION: u32 = 4_096;
 const MAX_PIXELS: u64 = 16_777_216;
+const LIBERATION_SANS_BOLD: &[u8] = include_bytes!("../fonts/LiberationSans-Bold.ttf");
 
 #[event(fetch)]
 pub async fn main(mut req: Request, _env: Env, _ctx: worker::Context) -> Result<Response> {
@@ -43,7 +44,9 @@ pub async fn main(mut req: Request, _env: Env, _ctx: worker::Context) -> Result<
 }
 
 fn render_svg(svg_data: &[u8]) -> std::result::Result<Vec<u8>, String> {
-    let opt = usvg::Options::default();
+    let mut opt = usvg::Options::default();
+    opt.fontdb.load_font_data(LIBERATION_SANS_BOLD.to_vec());
+    opt.font_family = "Liberation Sans".into();
     let rtree = usvg::Tree::from_data(&svg_data, &opt.to_ref())
         .map_err(|err| format!("failed to decode SVG: {}", err))?;
     let pixmap_size = rtree.svg_node().size.to_screen_size();
@@ -76,5 +79,15 @@ mod tests {
     fn renders_svg_to_png() {
         let png = render_svg(br#"<svg xmlns="http://www.w3.org/2000/svg" width="2" height="2"><rect width="2" height="2" fill="red"/></svg>"#).unwrap();
         assert_eq!(&png[..8], &[137, 80, 78, 71, 13, 10, 26, 10]);
+    }
+
+    #[test]
+    fn renders_svg_text_with_the_bundled_font() {
+        let blank =
+            render_svg(br#"<svg xmlns="http://www.w3.org/2000/svg" width="200" height="50"/>"#)
+                .unwrap();
+        let text = render_svg(br#"<svg xmlns="http://www.w3.org/2000/svg" width="200" height="50"><text x="5" y="35" font-family="Arial, sans-serif" font-size="32" font-weight="800">GAVL</text></svg>"#).unwrap();
+
+        assert_ne!(text, blank);
     }
 }
