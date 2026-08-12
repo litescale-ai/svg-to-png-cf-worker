@@ -1,16 +1,13 @@
-name = "svg-to-png"
-type = "javascript"
-workers_dev = true
-compatibility_date = "2022-02-27"
+name = "auction-central-svg-rasterizer"
+workers_dev = false
+preview_urls = false
+compatibility_date = "2026-08-12"
 main = "build/worker/shim.mjs"
 
 [build]
-command = "cargo install -q worker-build && worker-build --release"
-
-[build.upload]
-dir = "build/worker"
-format = "modules"
+command = "worker-build --release"
 
 [[rules]]
 globs = [ "**/*.wasm" ]
 type = "CompiledWasm"
+fallthrough = false

@@ -1,35 +1,24 @@
 ![afbeelding](https://user-images.githubusercontent.com/33700526/207815865-9b471652-5723-4d35-8847-dce0fb9701eb.png)
 
-# SVG to PNG Cloudflare Worker
+# GAVL SVG to PNG Cloudflare Worker
 
-SVG to PNG converter in Cloudflare Workers
+Internal SVG-to-PNG rasterizer for GAVL, forked from
+[`GewoonJaap/svg-to-png-cf-worker`](https://github.com/GewoonJaap/svg-to-png-cf-worker).
 
-# Installation
+The deployed Worker has no public route or `workers.dev` URL. Auction Central
+calls it through a Cloudflare service binding.
 
-## Windows Specific
-- Install [Strawberry Perl](https://strawberryperl.com/)
+# Contract
 
-## All OS
-- Install [Rust](https://www.rust-lang.org/tools/install)
-- Install [Cloudflare Wrangler](https://developers.cloudflare.com/workers/cli-wrangler/install-update)
-- `wrangler login`
-- Create a Cloudflare worker with name: `svg-to-png`;
-- `wrangler dev` to local test
-- `wrangler publish` to publish to Cloudflare
+- `POST /render`
+- `Content-Type: image/svg+xml`
+- Body: raw SVG, up to 10 MB and 4096×4096 / 16.7 million pixels
+- Response: `image/png`
 
-# Usage
+Remote URL fetching is intentionally unsupported. The caller must resolve and
+inline trusted image assets before rasterization.
 
-`https://svg-to-png.mrproper.dev/{SVG URL}`
+# Development
 
-**Demo**: https://svg-to-png.mrproper.dev/https://docs.tandoor.dev/logo_color.svg
-
-### POST Request
-
-You can also make a POST request with the SVG URL in the body. The body should be a JSON object containing the URL.
-
-Example using `curl`:
-
-```sh
-curl -X POST -H "Content-Type: application/json" -d '{"url": "https://docs.tandoor.dev/logo_color.svg"}' https://svg-to-png.mrproper.dev
-```
-This will convert the SVG at the specified URL to a PNG and return the PNG image.
+Install Rust, `wasm32-unknown-unknown`, `worker-build`, and Wrangler, then run
+`wrangler dev` or `wrangler deploy`.
